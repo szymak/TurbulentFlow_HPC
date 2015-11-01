@@ -138,44 +138,6 @@ class Simulation {
         _wallVelocityIterator.iterate();
     }
 
-    void removeTempFiles(){
-    	std::remove("vtkFiles/_pressure.temp");
-    	std::remove("vtkFiles/_velocity.temp");
-    	std::remove("vtkFiles/_points.temp");
-    }
-
-    bool initializeTempFiles(){
-    	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::out);
-    	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::out);
-    	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::out);
-    	int dim = _parameters;
-
-
-    	if (pointsFile.fail())
-    		return false;
-    	else{
-    		pointsFile.write("pointsFile\n",11);
-    		pointsFile.close();
-    	}
-
-    	if (pressureFile.fail())
-    		return false;
-    	else{
-    		pressureFile.write("pressureFile\n",11);
-    		pressureFile.close();
-    	}
-
-    	if (velocityFile.fail())
-    		return false;
-    	else{
-    		velocityFile.write("velocityFile\n",11);
-    		velocityFile.close();
-    	}
-
-		//pointsFile.open("vtkFiles/_points.temp", std::fstream::out | std::fstream::in | std::fstream::app);
-    	return true;
-    }
-
     /** TODO WS1: plots the flow field. */
     virtual void plotVTK(int timeStep){
       // TODO WS1: create VTKStencil and respective iterator; iterate stencil
@@ -224,6 +186,62 @@ class Simulation {
 
       _parameters.timestep.dt = globalMin;
       _parameters.timestep.dt *= _parameters.timestep.tau;
+    }
+
+    void removeTempFiles(){
+    	std::remove("vtkFiles/_pressure.temp");
+    	std::remove("vtkFiles/_velocity.temp");
+    	std::remove("vtkFiles/_points.temp");
+    }
+
+    bool initializeTempFiles(){
+    	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::out);
+    	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::out);
+    	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::out);
+    	std::string temp_stream;
+    	int dim_x = _flowField._size_x;
+    	int dim_y = _flowField._size_y;
+    	int dim_z = _flowField._size_z;
+    	int points = dim_x*dim_y*dim_z;
+    	std::string precission_type = sizeof(FLOAT) == 4 ? "float" : "double";
+
+
+    	if (pointsFile.fail())
+    		return false;
+    	else{
+    		temp_stream = "DATASET STRUCTURED_GRID\n";
+    		pointsFile.write(temp_stream,temp_stream.length());
+    		temp_stream = "DIMENSIONS " + dim_x + " " + dim_y + " " + dim_z + "\n";
+    		pointsFile.write(temp_stream,temp_stream.length());
+    		temp_stream = "POINTS " + points + " " + precission_type + "\n";
+    		pointsFile.write(temp_stream,temp_stream.length());
+
+    		pointsFile.close();
+    	}
+
+    	if (pressureFile.fail())
+    		return false;
+    	else{
+    		temp_stream = "CELL_DATA " + points + "\n";
+    		pressureFile.write(temp_stream,temp_stream.length());
+    		temp_stream = "SCALARS pressure " + precission_type + " 1\n";
+    		pressureFile.write(temp_stream,temp_stream.length());
+    		temp_stream = "LOOKUP_TABLE default\n";
+    		pressureFile.write(temp_stream,temp_stream.length());
+
+    		pressureFile.close();
+    	}
+
+    	if (velocityFile.fail())
+    		return false;
+    	else{
+    		temp_stream = "VECTORS velocity " + precission_type + "\n";
+    		velocityFile.write(temp_stream,temp_stream.length());
+    		velocityFile.close();
+    	}
+
+		//pointsFile.open("vtkFiles/_points.temp", std::fstream::out | std::fstream::in | std::fstream::app);
+    	return true;
     }
 
 };
