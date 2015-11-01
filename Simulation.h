@@ -138,10 +138,34 @@ class Simulation {
         _wallVelocityIterator.iterate();
     }
 
+    void removeTempFiles(){
+    	std::remove("vtkFiles/_pressure.temp");
+    	std::remove("vtkFiles/_velocity.temp");
+    	std::remove("vtkFiles/_points.temp");
+    }
+
+    bool initializeTempFiles(){
+    	std::fstream pointsFile("vtkFiles/_points.temp");
+    	std::fstream pressureFile("vtkFiles/_pressure.temp");
+    	std::fstream velocityFile("vtkFiles/_velocity.temp");
+
+    	return true;
+    }
+
     /** TODO WS1: plots the flow field. */
     virtual void plotVTK(int timeStep){
       // TODO WS1: create VTKStencil and respective iterator; iterate stencil
       //           over _flowField and write flow field information to vtk file
+    	VTKStencil vtkStencil(_parameters);
+    	FieldIterator<FlowField> vtkIt(_flowField, _parameters, vtkStencil);
+
+    	removeTempFiles();
+    	initializeTempFiles();
+
+
+
+
+    	//vtkIt.iterate();
     }
 
   protected:
