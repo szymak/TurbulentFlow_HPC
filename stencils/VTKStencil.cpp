@@ -5,8 +5,7 @@
  * When iterated with, creates a VTK file.
  */
  
-VTKStencil::VTKStencil(const Parameters & parameters) :
-	FieldStencil<FlowField> (parameters) {}
+VTKStencil::VTKStencil(const Parameters & parameters) : FieldStencil<FlowField> (parameters) {}
 	
 void VTKStencil::apply ( FlowField & flowField, int i, int j){}
 void VTKStencil::apply ( FlowField & flowField, int i, int j, int k){}

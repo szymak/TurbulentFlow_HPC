@@ -145,10 +145,34 @@ class Simulation {
     }
 
     bool initializeTempFiles(){
-    	std::fstream pointsFile("vtkFiles/_points.temp");
-    	std::fstream pressureFile("vtkFiles/_pressure.temp");
-    	std::fstream velocityFile("vtkFiles/_velocity.temp");
+    	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::out);
+    	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::out);
+    	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::out);
+    	int dim = _parameters;
 
+
+    	if (pointsFile.fail())
+    		return false;
+    	else{
+    		pointsFile.write("pointsFile\n",11);
+    		pointsFile.close();
+    	}
+
+    	if (pressureFile.fail())
+    		return false;
+    	else{
+    		pressureFile.write("pressureFile\n",11);
+    		pressureFile.close();
+    	}
+
+    	if (velocityFile.fail())
+    		return false;
+    	else{
+    		velocityFile.write("velocityFile\n",11);
+    		velocityFile.close();
+    	}
+
+		//pointsFile.open("vtkFiles/_points.temp", std::fstream::out | std::fstream::in | std::fstream::app);
     	return true;
     }
 
@@ -160,10 +184,8 @@ class Simulation {
     	FieldIterator<FlowField> vtkIt(_flowField, _parameters, vtkStencil);
 
     	removeTempFiles();
-    	initializeTempFiles();
-
-
-
+    	if(initializeTempFiles())
+    		std::cout << "------------SUCCESS---------------" << std::endl;
 
     	//vtkIt.iterate();
     }
