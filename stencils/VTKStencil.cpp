@@ -8,11 +8,9 @@
 VTKStencil::VTKStencil(const Parameters & parameters) : FieldStencil<FlowField> (parameters) {}
 	
 void VTKStencil::apply ( FlowField & flowField, int i, int j){
-	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::out | std::fstream::in | std::fstream::app);
-	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::out | std::fstream::in | std::fstream::app);
-	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::out | std::fstream::in | std::fstream::app);
-	FLOAT temp_pressure;
-	FLOAT temp_velocity[3];
+	std::fstream pointsFile(POINTS_FILE, std::fstream::out | std::fstream::in | std::fstream::app);
+	std::fstream pressureFile(PRESSURE_FILE, std::fstream::out | std::fstream::in | std::fstream::app);
+	std::fstream velocityFile(VELOCITY_FILE, std::fstream::out | std::fstream::in | std::fstream::app);
 
 	if(pointsFile.fail() || pressureFile.fail() || velocityFile.fail())
 		return;
@@ -21,24 +19,23 @@ void VTKStencil::apply ( FlowField & flowField, int i, int j){
 			      (double)(j-1)*_parameters.geometry.lengthY/_parameters.geometry.sizeY << "0.0\n";
 
 	if (i == _parameters.geometry.sizeX || j == _parameters.geometry.sizeY){
-
+		// out of bounds
 	}
 	else{
-		flowField.getPressureAndVelocity(temp_pressure, temp_velocity, i, j);
-		pressureFile << temp_pressure << "\n";
-		velocityFile << temp_velocity[0] << " " << temp_velocity[1] << " 0\n";
+		flowField.getPressureAndVelocity(pressureVTK, velocityVTK, i, j);
+		pressureFile << pressureVTK << "\n";
+		velocityFile << velocityVTK[0] << " " << velocityVTK[1] << " 0\n";
 	}
 
 	pointsFile.close();
 	pressureFile.close();
 	velocityFile.close();
 }
+
 void VTKStencil::apply ( FlowField & flowField, int i, int j, int k){
-	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::out | std::fstream::in | std::fstream::app);
-	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::out | std::fstream::in | std::fstream::app);
-	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::out | std::fstream::in | std::fstream::app);
-	FLOAT temp_pressure;
-	FLOAT temp_velocity[3];
+	std::fstream pointsFile(POINTS_FILE, std::fstream::out | std::fstream::in | std::fstream::app);
+	std::fstream pressureFile(PRESSURE_FILE, std::fstream::out | std::fstream::in | std::fstream::app);
+	std::fstream velocityFile(VELOCITY_FILE, std::fstream::out | std::fstream::in | std::fstream::app);
 
 	if(pointsFile.fail() || pressureFile.fail() || velocityFile.fail())
 		return;
@@ -48,12 +45,12 @@ void VTKStencil::apply ( FlowField & flowField, int i, int j, int k){
 				  (double)(k-1)*_parameters.geometry.lengthZ/_parameters.geometry.sizeZ << "\n";
 
 	if (i == _parameters.geometry.sizeX || j == _parameters.geometry.sizeY || k == _parameters.geometry.sizeZ){
-
+		// out of bounds
 	}
 	else{
-		flowField.getPressureAndVelocity(temp_pressure, temp_velocity, i, j, k);
-		pressureFile << temp_pressure << "\n";
-		velocityFile << temp_velocity[0] << " " << temp_velocity[1] << " " << temp_velocity[2] << "\n";
+		flowField.getPressureAndVelocity(pressureVTK, velocityVTK, i, j, k);
+		pressureFile << pressureVTK << "\n";
+		velocityFile << velocityVTK[0] << " " << velocityVTK[1] << " " << velocityVTK[2] << "\n";
 	}
 
 	pointsFile.close();

@@ -9,11 +9,19 @@
 #include <fstream>
 #include <sstream>
 
+#define POINTS_FILE   "vtkFiles/_points.temp"
+#define PRESSURE_FILE "vtkFiles/_pressure.temp"
+#define VELOCITY_FILE "vtkFiles/_velocity.temp"
+
 /** TODO WS1: Stencil for writting VTK files
  *
  * When iterated with, creates a VTK file.
  */
 class VTKStencil : public FieldStencil<FlowField> {
+
+	private:
+		FLOAT pressureVTK;
+		FLOAT velocityVTK[3];
 
     public:
 

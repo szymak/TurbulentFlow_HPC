@@ -209,9 +209,9 @@ class Simulation {
     }
 
     bool initializeTempFiles(){
-    	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::out);
-    	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::out);
-    	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::out);
+    	std::fstream pointsFile(POINTS_FILE, std::fstream::out);
+    	std::fstream pressureFile(PRESSURE_FILE, std::fstream::out);
+    	std::fstream velocityFile(VELOCITY_FILE, std::fstream::out);
     	std::ostringstream temp_stream;
     	std::string temp_string;
     	int dim_x = _flowField.getNx() + 1;
@@ -279,9 +279,9 @@ class Simulation {
     }
 
     bool combineTempFiles(std::string fileName){
-    	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::in);
-    	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::in);
-    	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::in);
+    	std::fstream pointsFile(POINTS_FILE, std::fstream::in);
+    	std::fstream pressureFile(PRESSURE_FILE, std::fstream::in);
+    	std::fstream velocityFile(VELOCITY_FILE, std::fstream::in);
     	std::fstream combinedFile(fileName.c_str(), std::fstream::out);
     	std::string temp_string;
 
