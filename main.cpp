@@ -63,10 +63,12 @@ int main (int argc, char *argv[]) {
 
     FLOAT time = 0.0;
     FLOAT timeStdOut=parameters.stdOut.interval;
+    FLOAT threshold_vtk = parameters.vtk.interval;
     int timeSteps = 0;
+    int vtkFileNumber = 0;
 
     // TODO WS1: plot initial state
-    simulation->plotVTK(timeSteps);
+    simulation->plotVTK(time);
 
     // time loop
     while (time < parameters.simulation.finalTime){
@@ -82,10 +84,16 @@ int main (int argc, char *argv[]) {
           timeStdOut += parameters.stdOut.interval;
       }
       // TODO WS1: trigger VTK output
+      if (time >= threshold_vtk){
+    	  simulation->plotVTK(vtkFileNumber);
+    	  threshold_vtk += parameters.vtk.interval;
+    	  vtkFileNumber++;
+      }
       timeSteps++;
     }
 
     // TODO WS1: plot final output
+    //simulation->plotVTK(vtkFileNumber);
 
     delete simulation; simulation=NULL;
     delete flowField;  flowField= NULL;

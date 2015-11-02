@@ -146,10 +146,24 @@ class Simulation {
     	FieldIterator<FlowField> vtkIt(_flowField, _parameters, vtkStencil);
 
     	removeTempFiles();
-    	if(initializeTempFiles())
-    		std::cout << "------------SUCCESS---------------" << std::endl;
+    	if(!initializeTempFiles()){
+    		std::cout << "Failed to initialize files!" << std::endl;
+    		return;
+    	}
 
-    	//vtkIt.iterate();
+    	vtkIt.iterate();
+
+    	std::ostringstream temp_stream;
+    	temp_stream << "vtkFiles/" << _parameters.vtk.prefix << timeStep << ".vtk";
+    	std::string vtkFileName = temp_stream.str();
+
+    	if(!combineTempFiles(vtkFileName))
+    		std::cout << "Failed to create vtk file!" << std::endl;
+    	else
+    		std::cout << "Succesfully created a vtk file!" << std::endl;
+
+
+    	removeTempFiles();
     }
 
   protected:
@@ -198,23 +212,29 @@ class Simulation {
     	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::out);
     	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::out);
     	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::out);
-    	std::string temp_stream;
-    	int dim_x = _flowField._size_x;
-    	int dim_y = _flowField._size_y;
-    	int dim_z = _flowField._size_z;
+    	std::ostringstream temp_stream;
+    	std::string temp_string;
+    	int dim_x = _flowField.getNx() + 1;
+    	int dim_y = _flowField.getNy() + 1;
+    	int dim_z = _flowField.getNz() + 1;
     	int points = dim_x*dim_y*dim_z;
     	std::string precission_type = sizeof(FLOAT) == 4 ? "float" : "double";
-
 
     	if (pointsFile.fail())
     		return false;
     	else{
-    		temp_stream = "DATASET STRUCTURED_GRID\n";
-    		pointsFile.write(temp_stream,temp_stream.length());
-    		temp_stream = "DIMENSIONS " + dim_x + " " + dim_y + " " + dim_z + "\n";
-    		pointsFile.write(temp_stream,temp_stream.length());
-    		temp_stream = "POINTS " + points + " " + precission_type + "\n";
-    		pointsFile.write(temp_stream,temp_stream.length());
+    		temp_string = "DATASET STRUCTURED_GRID\n";
+    		pointsFile.write(temp_string.c_str(),temp_string.length());
+
+    		temp_stream << "DIMENSIONS " << dim_x << " " << dim_y << " " << dim_z << "\n";
+    		temp_string = temp_stream.str();
+    		pointsFile.write(temp_string.c_str(),temp_string.length());
+
+    		temp_stream.str("");
+    		temp_stream.clear();
+    		temp_stream << "POINTS " << points << " " << precission_type << "\n";
+    		temp_string = temp_stream.str();
+    		pointsFile.write(temp_string.c_str(),temp_string.length());
 
     		pointsFile.close();
     	}
@@ -222,12 +242,23 @@ class Simulation {
     	if (pressureFile.fail())
     		return false;
     	else{
-    		temp_stream = "CELL_DATA " + points + "\n";
-    		pressureFile.write(temp_stream,temp_stream.length());
-    		temp_stream = "SCALARS pressure " + precission_type + " 1\n";
-    		pressureFile.write(temp_stream,temp_stream.length());
-    		temp_stream = "LOOKUP_TABLE default\n";
-    		pressureFile.write(temp_stream,temp_stream.length());
+    		temp_stream.str("");
+    		temp_stream.clear();
+    		temp_stream << "CELL_DATA " << (dim_x-1)*(dim_y-1)*(dim_z-1) << "\n";
+    		temp_string = temp_stream.str();
+    		pressureFile.write(temp_string.c_str(),temp_string.length());
+
+    		temp_stream.str("");
+    		temp_stream.clear();
+    		temp_stream << "SCALARS pressure " << precission_type << " 1\n";
+    		temp_string = temp_stream.str();
+    		pressureFile.write(temp_string.c_str(),temp_string.length());
+
+    		temp_stream.str("");
+    		temp_stream.clear();
+    		temp_stream << "LOOKUP_TABLE default\n";
+    		temp_string = temp_stream.str();
+    		pressureFile.write(temp_string.c_str(),temp_string.length());
 
     		pressureFile.close();
     	}
@@ -235,12 +266,33 @@ class Simulation {
     	if (velocityFile.fail())
     		return false;
     	else{
-    		temp_stream = "VECTORS velocity " + precission_type + "\n";
-    		velocityFile.write(temp_stream,temp_stream.length());
+    		temp_stream.str("");
+    		temp_stream.clear();
+    		temp_stream << "VECTORS velocity " << precission_type << "\n";
+    		temp_string = temp_stream.str();
+    		velocityFile.write(temp_string.c_str(),temp_string.length());
     		velocityFile.close();
     	}
 
 		//pointsFile.open("vtkFiles/_points.temp", std::fstream::out | std::fstream::in | std::fstream::app);
+    	return true;
+    }
+
+    bool combineTempFiles(std::string fileName){
+    	std::fstream pointsFile("vtkFiles/_points.temp", std::fstream::in);
+    	std::fstream pressureFile("vtkFiles/_pressure.temp", std::fstream::in);
+    	std::fstream velocityFile("vtkFiles/_velocity.temp", std::fstream::in);
+    	std::fstream combinedFile(fileName.c_str(), std::fstream::out);
+    	std::string temp_string;
+
+    	if(pointsFile.fail() || pressureFile.fail() || velocityFile.fail())
+    		return false;
+
+    	combinedFile << "# vtk DataFile Version 2.0\nGenerated VTK file\nASCII\n\n";
+    	combinedFile << pointsFile.rdbuf() << "\n";
+    	combinedFile << pressureFile.rdbuf() << "\n";
+    	combinedFile << velocityFile.rdbuf();
+
     	return true;
     }
 
