@@ -16,10 +16,11 @@ void VTKStencil::apply ( FlowField & flowField, int i, int j){
 		return;
 
 	pointsFile << (double)(i-1)*_parameters.geometry.lengthX/_parameters.geometry.sizeX << " " <<
-			      (double)(j-1)*_parameters.geometry.lengthY/_parameters.geometry.sizeY << "0.0\n";
+			      (double)(j-1)*_parameters.geometry.lengthY/_parameters.geometry.sizeY << " 0.0\n";
 
-	if (i == _parameters.geometry.sizeX || j == _parameters.geometry.sizeY){
-		// out of bounds
+	//if (i == _parameters.geometry.sizeX || j == _parameters.geometry.sizeY){
+	if (i == 1 || j == 1){
+	// out of bounds
 	}
 	else{
 		flowField.getPressureAndVelocity(pressureVTK, velocityVTK, i, j);
@@ -44,8 +45,9 @@ void VTKStencil::apply ( FlowField & flowField, int i, int j, int k){
 				  (double)(j-1)*_parameters.geometry.lengthY/_parameters.geometry.sizeY << " " <<
 				  (double)(k-1)*_parameters.geometry.lengthZ/_parameters.geometry.sizeZ << "\n";
 
-	if (i == _parameters.geometry.sizeX || j == _parameters.geometry.sizeY || k == _parameters.geometry.sizeZ){
-		// out of bounds
+//	if (i == _parameters.geometry.sizeX || j == _parameters.geometry.sizeY || k == _parameters.geometry.sizeZ){
+	if (i == 1 || j == 1 || k == 1){
+	// out of bounds
 	}
 	else{
 		flowField.getPressureAndVelocity(pressureVTK, velocityVTK, i, j, k);

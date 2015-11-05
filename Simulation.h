@@ -214,10 +214,12 @@ class Simulation {
     	std::fstream velocityFile(VELOCITY_FILE, std::fstream::out);
     	std::ostringstream temp_stream;
     	std::string temp_string;
+    	int dim = _parameters.geometry.dim;
     	int dim_x = _flowField.getNx() + 1;
     	int dim_y = _flowField.getNy() + 1;
-    	int dim_z = _flowField.getNz() + 1;
+    	int dim_z = dim == 3 ? _flowField.getNz() + 1 : 1;
     	int points = dim_x*dim_y*dim_z;
+    	int cells = dim == 3 ? (dim_x-1)*(dim_y-1)*(dim_z-1) : (dim_x-1)*(dim_y-1);
     	std::string precission_type = sizeof(FLOAT) == 4 ? "float" : "double";
 
     	if (pointsFile.fail())
@@ -244,7 +246,7 @@ class Simulation {
     	else{
     		temp_stream.str("");
     		temp_stream.clear();
-    		temp_stream << "CELL_DATA " << (dim_x-1)*(dim_y-1)*(dim_z-1) << "\n";
+    		temp_stream << "CELL_DATA " << cells << "\n";
     		temp_string = temp_stream.str();
     		pressureFile.write(temp_string.c_str(),temp_string.length());
 
